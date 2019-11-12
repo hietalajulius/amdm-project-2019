@@ -14,6 +14,7 @@ fnames = ['ca-AstroPh',
 
 fname = sample(fnames, 1)[0]  # draw random graph
 fname = fnames[4]
+
 print(f"Creating graph from {fname}")
 graph = Graph(fname=fname,
               fpath="")
