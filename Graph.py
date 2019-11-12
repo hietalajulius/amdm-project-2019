@@ -82,6 +82,10 @@ class Graph:
         print(df.head())
         self.df_data = df
 
+    def calculate_objective(self):
+
+        NotImplementedError
+
     def draw_map(self):
         """
         https://networkx.github.io/documentation/stable/auto_examples/drawing/plot_labels_and_colors.html
