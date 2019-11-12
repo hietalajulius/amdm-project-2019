@@ -23,7 +23,7 @@ class Graph:
         if self.fpath == "":
             self.fpath = os.getcwd()
         file_dir = os.path.join(os.path.join(self.fpath, 'graphs_processed'), self.fname)
-        print(f"Reading graph from {file_dir}")
+        print(f"Reading edge data from {file_dir}")
 
         header_names = ['node1', 'node2']
         df = pd.read_csv(file_dir, sep=' ', skiprows=1,  header=None, names=header_names)
@@ -32,17 +32,19 @@ class Graph:
 
     def _add_nodes(self):
 
-        nodes1 = self.df_data.loc['node1'].unique()
-        nodes2 = self.df_data.loc['node2'].unique()
+        nodes1 = self.df_data.loc[:, 'node1'].unique()
+        nodes2 = self.df_data.loc[:, 'node2'].unique()
         unique_nodes = np.unique(np.concatenate((nodes1, nodes2), 0))
         # a list of nodes:
         self.G.add_nodes_from(unique_nodes)
+        print(f"Added nodes to graph")
 
     def _add_edges(self):
         self.list_of_edges = [(0, 4016), (1, 2977), (1, 258), (1, 421), (1, 1201)]
 
         # adding a list of edges:
         self.G.add_edges_from(self.list_of_edges)
+        print(f"Added edges to graph")
 
     def _init_graph(self):
 
