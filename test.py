@@ -1,15 +1,29 @@
 # Comment
+from random import sample
 from graph import Graph
 
-graph = Graph(fname="ca-GrQc.txt",
-              fpath="",
-              algorithm="",
-              k=2)
+fnames = ['ca-AstroPh',
+          'ca-CondMat',
+          'ca-GrQc',
+          'ca-HepPh',
+          'ca-HepTh',
+          'Oregon-1',
+          'roadNet-CA',
+          'soc-Epinions1',
+          'web-NotreDame']
+
+fname = sample(fnames, 1)[0]  # draw random graph
+fname = fnames[4]
+print(f"Creating graph from {fname}")
+graph = Graph(fname=fname,
+              fpath="")
 
 graph.draw_map()
 
-graph.partition_graph()
+# graph.partition_graph(algorithm="spectral", k=2)
 
-graph.draw_partition_map()
+# graph.calculate_objective()
 
-graph.write_output()
+# graph.draw_partitioned_map()
+
+# graph.write_output()
