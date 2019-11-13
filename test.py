@@ -13,17 +13,17 @@ fnames = ['ca-AstroPh',
           'web-NotreDame']
 
 fname = sample(fnames, 1)[0]  # draw random graph
-fname = fnames[4]
+fname = fnames[2]
 
 print(f"Creating graph from {fname}")
 graph = Graph(fname=fname,
               fpath="")
 
-graph.draw_map()
+# graph.draw_map()
 
 graph.partition_graph(algorithm="test", k=2)
 
-# graph.calculate_objective()
+theta = graph.calculate_objective()
 
 # graph.draw_partitioned_map()
 
