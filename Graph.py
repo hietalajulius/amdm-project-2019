@@ -21,7 +21,7 @@ class Graph:
         self.list_of_edges = None
         self.list_of_nodes = None
         self.G = None  # networkx graph
-        self.k = None # number of partitions
+        self.k = None  # number of partitions
         self.objective = None
 
         self._read_file()
@@ -40,9 +40,8 @@ class Graph:
         self.list_of_nodes = unique_nodes
         self.G.add_nodes_from(unique_nodes)
 
-        print(unique_nodes)
-        self.df_output = pd.DataFrame(data=unique_nodes,
-                                     columns=['vertexID'])
+        # print(unique_nodes)
+        self.df_output = pd.DataFrame(data=unique_nodes, columns=['vertexID'])
         print(f"Added nodes to graph")
 
     def _add_edges(self):
@@ -67,8 +66,8 @@ class Graph:
         self._add_nodes()
         self._add_edges()
 
-        print(self.G.nodes())
-        print(self.G.edges())
+        # print(self.G.nodes())
+        # print(self.G.edges())
 
     def _read_file(self):
         """
@@ -95,20 +94,19 @@ class Graph:
         vertexID = self.df_output['vertexID'].values
         clusterID = self.df_output['clusterID'].values
         mask = clusterID == i
-        print(mask)
 
-        V, not_V = vertexID[mask], vertexID[~mask]
+        v, not_v = vertexID[mask], vertexID[~mask]
 
-        return V, not_V
+        return v, not_v
 
-    def _calculate_edges_between(self, V, not_V):
+    def _calculate_edges_between(self, v, not_v):
 
         count = 0
         for v1, v2 in self.list_of_edges:
-            print(f"edge is {v1} - {v2}")
-            if (v1 in V) and (v2 in not_V):
+            # print(f"edge is {v1} - {v2}")
+            if (v1 in v) and (v2 in not_v):
                 count += 1
-            elif (v1 in not_V) and (v2 in V):
+            elif (v1 in not_v) and (v2 in v):
                 count += 1
         return count
 
@@ -119,11 +117,12 @@ class Graph:
         """
         # TODO
         theta = 0
-        print(self.k)
         for i in range(self.k):
             V, not_V = self._divide_vertices(i)
             num_edges = self._calculate_edges_between(V, not_V)
             number_of_nodes = len(V)
+            print(f"Number of partition edges is {num_edges} and number of nodes in partition {i} is {number_of_nodes}")
+            print(f"Objective function value for given partition is {num_edges / number_of_nodes}")
             theta += num_edges / number_of_nodes  # Float or int division?
 
         print(f"Objective is {theta}")
@@ -174,7 +173,6 @@ class Graph:
             NotImplementedError
             self.spectral_partition()
         elif algorithm == 'test':
-
             self.df_output['clusterID'] = 0
             self.df_output.loc[100:, 'clusterID'] = 1
 
@@ -186,9 +184,13 @@ class Graph:
         # TODO
         # write: the first line specifies the problem parameters (# graphID numOfVertices
         # numOfEdges k)
+        output_name = f"{self.fname}.output"
+        if self.fpath == "":
+            self.fpath = os.getcwd()
+        file_dir = os.path.join(os.path.join(self.fpath, 'results'), f"{output_name}")
+        print(f"Writing results to {file_dir}")
 
         # write other data
-        self.df_output.to_csv(path=self.fpath,
+        self.df_output.to_csv(file_dir,
                               sep=' ',
                               header=True)
-
