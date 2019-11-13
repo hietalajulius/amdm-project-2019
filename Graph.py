@@ -69,6 +69,27 @@ class Graph:
         # print(self.G.nodes())
         # print(self.G.edges())
 
+    def _calculate_edges_between(self, v, not_v):
+
+        count = 0
+        for v1, v2 in self.list_of_edges:
+            # print(f"edge is {v1} - {v2}")
+            if (v1 in v) and (v2 in not_v):
+                count += 1
+            elif (v1 in not_v) and (v2 in v):
+                count += 1
+        return count
+
+    def _divide_vertices(self, i):
+
+        vertexID = self.df_output['vertexID'].values
+        clusterID = self.df_output['clusterID'].values
+        mask = clusterID == i
+
+        v, not_v = vertexID[mask], vertexID[~mask]
+
+        return v, not_v
+
     def _read_file(self):
         """
         Read first line
@@ -88,27 +109,6 @@ class Graph:
         df = pd.read_csv(file_dir, sep=' ', skiprows=1,  header=None, names=header_names)
         print(df.head())
         self.df_data = df
-
-    def _divide_vertices(self, i):
-
-        vertexID = self.df_output['vertexID'].values
-        clusterID = self.df_output['clusterID'].values
-        mask = clusterID == i
-
-        v, not_v = vertexID[mask], vertexID[~mask]
-
-        return v, not_v
-
-    def _calculate_edges_between(self, v, not_v):
-
-        count = 0
-        for v1, v2 in self.list_of_edges:
-            # print(f"edge is {v1} - {v2}")
-            if (v1 in v) and (v2 in not_v):
-                count += 1
-            elif (v1 in not_v) and (v2 in v):
-                count += 1
-        return count
 
     def calculate_objective(self):
         """
@@ -131,17 +131,7 @@ class Graph:
     def draw_map(self):
         """
         https://networkx.github.io/documentation/stable/auto_examples/drawing/plot_labels_and_colors.html
-        # nodes
-        nx.draw_networkx_nodes(G, pos,
-                               nodelist=[0, 1, 2, 3],
-                               node_color='r',
-                               node_size=500,
-                               alpha=0.8)
-        nx.draw_networkx_nodes(G, pos,
-                               nodelist=[4, 5, 6, 7],
-                               node_color='b',
-                               node_size=500,
-                               alpha=0.8)
+
         :return:
         """
 
@@ -151,19 +141,46 @@ class Graph:
         plt.show()  # display
 
     def draw_partitioned_map(self):
+        """
+        https://networkx.github.io/documentation/stable/auto_examples/drawing/plot_labels_and_colors.html
 
-        # TODO
-        NotImplementedError
+        :return:
+        """
+        print(f"Drawing map with partitioned vertices")
+
+        pos = nx.spring_layout(self.G)
+        colors = plt.cm.rainbow(np.linspace(0, 1, self.k))
+        for i in range(self.k):
+            v, _ = self._divide_vertices(i)
+            nodelist = v.tolist()
+            # for node in v:
+            #    nodelist.append(node)
+            print(f"nodelist size for cluster {i} is {len(nodelist)}")
+            node_color = colors[i]
+            nx.draw_networkx_nodes(self.G, pos,
+                                   nodelist=nodelist,
+                                   node_color=node_color,
+                                   node_size=10,
+                                   alpha=0.8)
+
+        nx.draw_networkx_edges(self.G, pos,
+                               edgelist=self.list_of_edges,
+                               width=1, alpha=0.5, edge_color='grey')
+
+        plt.savefig(f"partitioned_graph_{self.fname}.png")  # save as png
+        plt.suptitle(f"{self.fname}")
+        plt.show()  # display
 
     def partition_graph(self,
                         algorithm,
                         k=2):
         """
+        Write partition values to self.df_output
         self.df_output['vertexID'] = list_of_vertices
         self.df_output['clusterID'] = cluster_id_for_vertex
 
         :param algorithm: name of algorithm as string
-        :param k:
+        :param k: number of partitions k
         :return:
         """
 
@@ -171,13 +188,19 @@ class Graph:
         # TODO
         if algorithm == 'spectral':
             NotImplementedError
-            self.spectral_partition()
+            # result = moduulin_nimi.spectral_partition()
         elif algorithm == 'test':
             self.df_output['clusterID'] = 0
-            self.df_output.loc[100:, 'clusterID'] = 1
-
-        else:
+            self.df_output.loc[2000:, 'clusterID'] = 1
+        elif algorithm == 'juliuksen_pytorch':
             NotImplementedError
+            # result = moduulin_nimi.funkkari()
+        else:
+            print(f"Check algorithm spelling, not found.")
+
+        # esim.
+        # self.df_output['vertexID'] = vertex_id
+        # self.df_output['clusterID'] = cluster_id_for_vertex
 
     def write_output(self):
 
