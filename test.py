@@ -25,6 +25,6 @@ graph.partition_graph(algorithm="test")
 
 theta = graph.calculate_objective()
 
-#graph.draw_partitioned_map()
+graph.draw_partitioned_map()
 
 # graph.write_output()

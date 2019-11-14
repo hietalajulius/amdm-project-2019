@@ -98,7 +98,8 @@ class Graph:
 
     def _read_file(self):
         """
-        Read first line
+        Read first line [# graphID numOfVertices numOfEdges k]
+        Then read all edges to self.df_data
         :return:
         """
 
@@ -112,7 +113,12 @@ class Graph:
         with open(file_dir, "r", newline='') as f:
             reader = csv.reader(f)
             row1 = next(reader)
-            _, self.graphID, self.numOfVertices, self.numOfEdges, self.k = row1[0].split(" ")
+
+        _, self.graphID, self.numOfVertices, self.numOfEdges, self.k = row1[0].split(" ")
+        self.graphID, self.numOfVertices, self.numOfEdges, self.k = self.graphID, \
+                                                                    int(self.numOfVertices), \
+                                                                    int(self.numOfEdges), \
+                                                                    int(self.k)
 
         header_names = ['node1', 'node2']
         df = pd.read_csv(file_dir, sep=' ', skiprows=1,  header=None, names=header_names)
@@ -121,7 +127,8 @@ class Graph:
 
     def calculate_objective(self):
         """
-        calculate the objective function
+        calculate the objective function, tarkista onko oikein?
+        Pitäiskö tehä tämä partitionin sisään ei class funktioks?
         :return:
         """
         # TODO
@@ -139,8 +146,8 @@ class Graph:
 
     def draw_map(self):
         """
+        Draws graph with nodes and edges
         https://networkx.github.io/documentation/stable/auto_examples/drawing/plot_labels_and_colors.html
-
         :return:
         """
 
@@ -151,13 +158,13 @@ class Graph:
 
     def draw_partitioned_map(self):
         """
+        Draws graph with partitioned nodes and edges
         https://networkx.github.io/documentation/stable/auto_examples/drawing/plot_labels_and_colors.html
-
         :return:
         """
         print(f"Drawing map with partitioned vertices")
 
-        pos = nx.spring_layout(self.G)
+        pos = nx.spring_layout(self.G, k=0.15)  # k=0.2
         colors = plt.cm.rainbow(np.linspace(0, 1, self.k))
         for i in range(self.k):
             v, _ = self._divide_vertices(i)
@@ -211,8 +218,11 @@ class Graph:
     def write_output(self):
 
         # TODO
-        # write: the first line specifies the problem parameters (# graphID numOfVertices
-        # numOfEdges k)
+        # *****
+        # write: the first line specifies the problem parameters (# graphID numOfVertices numOfEdges k)
+
+        # *****
+
         output_name = f"{self.fname}.output"
         if self.fpath == "":
             self.fpath = os.getcwd()
