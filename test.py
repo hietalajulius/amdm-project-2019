@@ -21,7 +21,7 @@ graph = Graph(fname=fname,
 
 # graph.draw_map()
 
-graph.partition_graph(algorithm="test")
+graph.partition_graph(algorithm="spectral")
 
 theta = graph.calculate_objective()
 
