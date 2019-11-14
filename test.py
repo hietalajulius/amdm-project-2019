@@ -21,10 +21,10 @@ graph = Graph(fname=fname,
 
 # graph.draw_map()
 
-graph.partition_graph(algorithm="test", k=2)
+graph.partition_graph(algorithm="test")
 
 theta = graph.calculate_objective()
 
-graph.draw_partitioned_map()
+#graph.draw_partitioned_map()
 
-graph.write_output()
+# graph.write_output()

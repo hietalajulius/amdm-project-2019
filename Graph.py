@@ -1,3 +1,4 @@
+import csv
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,8 +22,13 @@ class Graph:
         self.list_of_edges = None
         self.list_of_nodes = None
         self.G = None  # networkx graph
-        self.k = None  # number of partitions
+
         self.objective = None
+
+        self.graphID = None
+        self.numOfVertices = None
+        self.numOfEdges = None
+        self.k = None  # number of partitions
 
         self._read_file()
         self._init_graph()
@@ -103,7 +109,10 @@ class Graph:
 
         # TODO
         #  Get [graphID numOfVertices numOfEdges k] from first comment line
-        # self.graphID, self.numOfVertices, self.numOfEdges, self.k = read_first_line()
+        with open(file_dir, "r", newline='') as f:
+            reader = csv.reader(f)
+            row1 = next(reader)
+            _, self.graphID, self.numOfVertices, self.numOfEdges, self.k = row1[0].split(" ")
 
         header_names = ['node1', 'node2']
         df = pd.read_csv(file_dir, sep=' ', skiprows=1,  header=None, names=header_names)
@@ -172,35 +181,32 @@ class Graph:
         plt.show()  # display
 
     def partition_graph(self,
-                        algorithm,
-                        k=2):
+                        algorithm):
         """
         Write partition values to self.df_output
         self.df_output['vertexID'] = list_of_vertices
         self.df_output['clusterID'] = cluster_id_for_vertex
 
         :param algorithm: name of algorithm as string
-        :param k: number of partitions k
         :return:
         """
 
-        self.k = k
         # TODO
         if algorithm == 'spectral':
             NotImplementedError
-            # result = moduulin_nimi.spectral_partition()
+            # partition = moduulin_nimi.spectral_partition(self.list_of_edges, self.k)
         elif algorithm == 'test':
             self.df_output['clusterID'] = 0
             self.df_output.loc[2000:, 'clusterID'] = 1
         elif algorithm == 'juliuksen_pytorch':
             NotImplementedError
-            # result = moduulin_nimi.funkkari()
+            # partition  = moduulin_nimi.funkkari(self.list_of_edges, self.k)
         else:
             print(f"Check algorithm spelling, not found.")
 
         # esim.
-        # self.df_output['vertexID'] = vertex_id
-        # self.df_output['clusterID'] = cluster_id_for_vertex
+        # self.df_output['vertexID'] = partition[:, 0]
+        # self.df_output['clusterID'] = partition[:, 1]
 
     def write_output(self):
 
