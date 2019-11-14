@@ -5,6 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 
+from spectral import normalized_spectral_clustering
 
 class Graph:
     def __init__(self, fname="", fpath=""):
@@ -132,6 +133,7 @@ class Graph:
         :return:
         """
         # TODO
+        print(f"Calculating objective function")
         theta = 0
         for i in range(self.k):
             V, not_V = self._divide_vertices(i)
@@ -198,22 +200,26 @@ class Graph:
         :return:
         """
 
+        print(f"Partitioning graph to {self.k} clusters with {algorithm}")
         # TODO
         if algorithm == 'spectral':
-            NotImplementedError
-            # partition = moduulin_nimi.spectral_partition(self.list_of_edges, self.k)
+            df = normalized_spectral_clustering(self.list_of_nodes,
+                                                self.list_of_edges,
+                                                self.k)
         elif algorithm == 'test':
             self.df_output['clusterID'] = 0
             self.df_output.loc[2000:, 'clusterID'] = 1
         elif algorithm == 'juliuksen_pytorch':
             NotImplementedError
-            # partition  = moduulin_nimi.funkkari(self.list_of_edges, self.k)
+            # df  = moduulin_nimi.funkkari(self.list_of_edges, self.k)
         else:
             print(f"Check algorithm spelling, not found.")
 
         # esim.
         # self.df_output['vertexID'] = partition[:, 0]
         # self.df_output['clusterID'] = partition[:, 1]
+
+        self.df_output = df
 
     def write_output(self):
 
