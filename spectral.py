@@ -29,45 +29,42 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     [14, 14], [15, 16], [14, 15]
 ])
     """
-    print(f"list_of_edges")
-    print(list_of_edges)
+    # print(f"list_of_edges")
+    # print(list_of_edges)
     n = len(unique_nodes)
 
     # input graph adjacency matrix A, number k
     A = adjacency_matrix(list_of_edges, unique_nodes)
-    print("A.shape", A.shape)
+    # print("A.shape", A.shape)
 
     # 1. form diagonal matrix D
     D = diagonal_degree_matrix(A)
-    print(f"D is {D}")
+    # print(f"D is {D}")
 
     #     2. form normalized Laplacian L0 = I - D^(-1/2)AD^(-1/2)
     L0 = np.identity(n) - np.dot(D, A).dot(D)
-    print(f"L0 is {L0}")
+    # print(f"L0 is {L0}")
 
     #     3. compute the first k eigenvectors u1; : : : ; uk of L0
-    e, v = eigh(L0, eigvals=(0, k))
+    e, v = eigh(L0, eigvals=(0, k-1))
     # eigenvalues
-    print('eigenvalues:')
-    print(e)
+    # print('eigenvalues:')
+    # print(e)
     # eigenvectors
-    print('eigenvectors:')
-    print(v)
+    # print('eigenvectors:')
+    # print(v)
     plot_eigenvalues(e, v)
 
-
-    #     4. form matrix U 2 R^(nxk) with columns u1, ... uk of L0
-    i = np.where(e < 10e-6)[0]
-    U = np.array(v[:k, i[1]])
-    print(f"U is {U}")
-
+    #     4. form matrix U that R^(nxk) with columns u1, ... uk of L0
     #     5. normalize U so that rows have norm 1
+    #     6. consider the i-th row of U as point yi € R^k,  i = 1, ... n,
+    i = np.where(e < 10e-6)[0]
+    U = np.array(v[:, i[1]])
+    # print(f"U shape is {U.shape}")
 
-    #     6. consider the i-th row of U as point yi 2 Rk ; i = 1; : : : ; n,
-
-    #     7. cluster the points fyigi=1;:::;n into clusters C1; : : : ;Ck
+    #     7. cluster the points {yi}_ i=1,...,n into clusters C1,...,Ck
     km = KMeans(init='k-means++', n_clusters=k)
-    km.fit(U)
+    km.fit(U.reshape(-1, 1))
     clusters = km.labels_
 
     df = pd.DataFrame({'vertexID':unique_nodes, 'clusterID': clusters})
@@ -92,7 +89,7 @@ def adjacency_matrix(list_of_edges, unique_nodes):
         adj_matrix[i2, i1] = 1
         # print(f"adj matrix found value in index1 {i1} index2 {i2}")
 
-    print(f"sim_matrix.shape {adj_matrix.shape}, sum is {np.sum(adj_matrix)}")
+    # print(f"sim_matrix.shape {adj_matrix.shape}, sum is {np.sum(adj_matrix)}")
     return adj_matrix
 
 def diagonal_degree_matrix(adj):
@@ -105,7 +102,7 @@ def diagonal_degree_matrix(adj):
     rows, cols = adj.nonzero()
     for row, col in zip(rows, cols):
         diag[row, row] += 1
-    print(f"diagonal {diag}")
+    # print(f"diagonal {diag}")
 
     # Calculate D^(-1/2)
     for row, col in zip(rows, cols):

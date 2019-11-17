@@ -12,19 +12,19 @@ fnames = ['ca-AstroPh',
           'soc-Epinions1',
           'web-NotreDame']
 
-fname = sample(fnames, 1)[0]  # draw random graph
-fname = fnames[2]
+# fname = sample(fnames, 1)[0]  # draw random graph
+# fname = fnames[2]
 
-print(f"Creating graph from {fname}")
-graph = Graph(fname=fname,
-              fpath="")
+for fname in fnames:
+    print(f"Creating graph from {fname}")
+    graph = Graph(fname=fname,
+                  fpath="")
+    # graph.draw_map()
 
-# graph.draw_map()
+    graph.partition_graph(algorithm="spectral")
 
-graph.partition_graph(algorithm="spectral")
+    theta = graph.calculate_objective()
 
-theta = graph.calculate_objective()
+    graph.draw_partitioned_map()
 
-graph.draw_partitioned_map()
-
-# graph.write_output()
+    graph.write_output()
