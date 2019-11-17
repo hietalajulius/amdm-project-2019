@@ -68,7 +68,7 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     clusters = km.labels_
 
     df = pd.DataFrame({'vertexID':unique_nodes, 'clusterID': clusters})
-
+    print(df)
     return df
 
 def adjacency_matrix(list_of_edges, unique_nodes):

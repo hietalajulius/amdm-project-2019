@@ -20,6 +20,7 @@ class Graph:
         self.algorithm = None  # give name of partition algorithm
         self.df_data = None  # input data as dataframe
         self.df_output = None  # datafame that contains list of vertices and their partition index k
+        self.graph_edges = None
         self.list_of_edges = None
         self.list_of_nodes = None
         self.G = None  # networkx graph
@@ -60,6 +61,7 @@ class Graph:
         self.list_of_edges = self.df_data.loc[:, ['node1', 'node2']].values
 
         graph_edges = [tuple(x) for x in self.df_data.to_records(index=False)]
+        self.graph_edges = graph_edges
         # adding a list of edges:
         self.G.add_edges_from(graph_edges)
 
@@ -143,11 +145,13 @@ class Graph:
             V, not_V = self._divide_vertices(i)
             num_edges = self._calculate_edges_between(V, not_V)
             number_of_nodes = len(V)
-            print(f"Number of partition edges is {num_edges} and number of nodes in partition {i} is {number_of_nodes}")
-            print(f"Objective function value for given partition is {num_edges / number_of_nodes}")
+
+            obj = round(num_edges / number_of_nodes, 1)
+            print(f"Objective is {obj}. Number of partition edges is {num_edges} "
+                  f"and number of nodes in partition {i} is {number_of_nodes}")
             theta += num_edges / number_of_nodes  # Float or int division?
 
-        print(f"Objective is {theta}")
+        print(f"Total objective value is {theta}")
         return theta
 
     def draw_map(self):
@@ -171,22 +175,28 @@ class Graph:
         print(f"Drawing map with partitioned vertices")
 
         pos = nx.spring_layout(self.G, k=0.15)  # k=0.2
-        colors = plt.cm.rainbow(np.linspace(0, 1, self.k))
+        # print(f"self.k is {self.k}")
+        cmap = plt.cm.rainbow(np.linspace(0, 1, self.k))
+        # print(f"cmap is {cmap}")
         for i in range(self.k):
             v, _ = self._divide_vertices(i)
             nodelist = v.tolist()
             # for node in v:
             #    nodelist.append(node)
             print(f"nodelist size for cluster {i} is {len(nodelist)}")
-            node_color = colors[i]
+            node_color = cmap[i]
+            # print(f"node_color {node_color}")
+            color_2d = np.zeros((len(nodelist), 4)) + node_color.reshape(-1, 1).T
+            # print(f"color_2d shape is {color_2d.shape}")
+
             nx.draw_networkx_nodes(self.G, pos,
                                    nodelist=nodelist,
-                                   node_color=node_color,
+                                   node_color=color_2d,
                                    node_size=10,
                                    alpha=0.8)
 
         nx.draw_networkx_edges(self.G, pos,
-                               edgelist=self.list_of_edges,
+                               edgelist=self.graph_edges,
                                width=1, alpha=0.5, edge_color='grey')
 
         plt.savefig(f"partitioned_graph_{self.fname}.png")  # save as png
@@ -227,19 +237,19 @@ class Graph:
 
     def write_output(self):
 
-        # TODO
-        # *****
-        # write: the first line specifies the problem parameters (# graphID numOfVertices numOfEdges k)
-
-        # *****
-
         output_name = f"{self.fname}.output"
         if self.fpath == "":
             self.fpath = os.getcwd()
         file_dir = os.path.join(os.path.join(self.fpath, 'results'), f"{output_name}")
         print(f"Writing results to {file_dir}")
 
-        # write other data
+        # write node and cluster data
         self.df_output.to_csv(file_dir,
                               sep=' ',
-                              header=True)
+                              header=True,
+                              index=False)
+
+        # TODO
+        # write: the first line specifies the problem parameters (# graphID numOfVertices numOfEdges k)
+        with open(file_dir, 'r') as original: data = original.read()
+        with open(file_dir, 'w') as modified: modified.write(f"# {self.graphID} {self.numOfVertices} {self.numOfEdges} {self.k}\n" + data)

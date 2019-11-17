@@ -13,7 +13,7 @@ fnames = ['ca-AstroPh',
           'web-NotreDame']
 
 # fname = sample(fnames, 1)[0]  # draw random graph
-# fname = fnames[2]
+# fname = fnames[2]  # take smallest graph
 
 for fname in fnames:
     print(f"Creating graph from {fname}")
@@ -25,6 +25,6 @@ for fname in fnames:
 
     theta = graph.calculate_objective()
 
-    graph.draw_partitioned_map()
+    # graph.draw_partitioned_map()
 
     graph.write_output()
