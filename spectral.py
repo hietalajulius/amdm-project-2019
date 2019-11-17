@@ -1,3 +1,4 @@
+from scipy.linalg import eigh
 import numpy as np
 from sklearn.metrics import pairwise_distances
 import matplotlib.pyplot as plt
@@ -45,25 +46,18 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     print(f"L0 is {L0}")
 
     #     3. compute the first k eigenvectors u1; : : : ; uk of L0
-    e, v = np.linalg.eig(L0)
+    e, v = eigh(L0, eigvals=(0, k))
     # eigenvalues
     print('eigenvalues:')
     print(e)
     # eigenvectors
     print('eigenvectors:')
     print(v)
+    plot_eigenvalues(e, v)
 
-    fig = plt.figure()
-    ax1 = plt.subplot(121)
-    plt.plot(e)
-    ax1.title.set_text('eigenvalues')
+
+    #     4. form matrix U 2 R^(nxk) with columns u1, ... uk of L0
     i = np.where(e < 10e-6)[0]
-    ax2 = plt.subplot(122)
-    plt.plot(v[:, i[0]])
-    fig.tight_layout()
-    plt.show()
-
-    #     4. form matrix U 2 Rnk with columns u1; : : : ; uk
     U = np.array(v[:k, i[1]])
     print(f"U is {U}")
 
@@ -118,3 +112,14 @@ def diagonal_degree_matrix(adj):
         diag[row, row] = 1 / diag[row, row]**0.5
 
     return diag
+
+def plot_eigenvalues(e, v):
+    fig = plt.figure()
+    ax1 = plt.subplot(121)
+    plt.plot(e)
+    ax1.title.set_text('eigenvalues')
+    i = np.where(e < 10e-6)[0]
+    ax2 = plt.subplot(122)
+    plt.plot(v[:, i[0]])
+    fig.tight_layout()
+    plt.show()
