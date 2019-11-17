@@ -18,16 +18,14 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     7. cluster the points fyigi=1;:::;n into clusters C1; : : : ;Ck
     e.g., with k-means clustering
     output clusters A1; : : : ;Ak with Ai = fj j yj 2 Cig
-    """
 
-    """
     list_of_edges in this format
     X = np.array([
     [1, 3], [2, 1], [1, 1],
     [3, 2], [7, 8], [9, 8],
     [9, 9], [8, 7], [13, 14],
     [14, 14], [15, 16], [14, 15]
-])
+    ])
     """
     # print(f"list_of_edges")
     # print(list_of_edges)
@@ -68,7 +66,7 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     clusters = km.labels_
 
     df = pd.DataFrame({'vertexID':unique_nodes, 'clusterID': clusters})
-    print(df)
+    # print(df)
     return df
 
 def adjacency_matrix(list_of_edges, unique_nodes):
@@ -80,7 +78,7 @@ def adjacency_matrix(list_of_edges, unique_nodes):
     """
     n = len(unique_nodes)
     # adj_matrix matrix
-    adj_matrix = np.zeros((n, n))
+    adj_matrix = np.zeros((n, n), dtype=np.float32)
     for v1, v2 in list_of_edges:
         # print(f"edge is {v1} - {v2}")
         i1 = np.where(unique_nodes == v1)[0][0]
@@ -98,7 +96,7 @@ def diagonal_degree_matrix(adj):
     :param adj:
     :return:
     """
-    diag = np.zeros([adj.shape[0], adj.shape[0]]) # basically dimensions of your graph
+    diag = np.zeros([adj.shape[0], adj.shape[0]], dtype=np.float32) # basically dimensions of your graph
     rows, cols = adj.nonzero()
     for row, col in zip(rows, cols):
         diag[row, row] += 1

@@ -2,18 +2,20 @@
 from random import sample
 from graph import Graph
 
+# files with memory error
+fnames = ['soc-Epinions1',
+          'roadNet-CA',
+          'web-NotreDame']
+
+# files ok for memory
 fnames = ['ca-AstroPh',
           'ca-CondMat',
           'ca-GrQc',
           'ca-HepPh',
           'ca-HepTh',
-          'Oregon-1',
-          'roadNet-CA',
-          'soc-Epinions1',
-          'web-NotreDame']
+          'Oregon-1']
 
-# fname = sample(fnames, 1)[0]  # draw random graph
-# fname = fnames[2]  # take smallest graph
+# fname = ['ca-GrQc']  # tet with smallest graph
 
 for fname in fnames:
     print(f"Creating graph from {fname}")
