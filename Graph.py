@@ -174,7 +174,7 @@ class Graph:
         """
         print(f"Drawing map with partitioned vertices")
 
-        pos = nx.spring_layout(self.G, k=0.15)  # k=0.2
+        pos = nx.spring_layout(self.G)  # k=0.2
         # print(f"self.k is {self.k}")
         cmap = plt.cm.rainbow(np.linspace(0, 1, self.k))
         # print(f"cmap is {cmap}")
@@ -246,7 +246,7 @@ class Graph:
         # write node and cluster data
         self.df_output.to_csv(file_dir,
                               sep=' ',
-                              header=True,
+                              header=False,
                               index=False)
 
         # TODO
