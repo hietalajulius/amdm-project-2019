@@ -56,10 +56,14 @@ class Graph:
 
         :return:
         """
+        # print(self.df_data)
+        self.list_of_edges = self.df_data.loc[:, ['node1', 'node2']].values
 
-        self.list_of_edges = [tuple(x) for x in self.df_data.to_records(index=False)]
+        graph_edges = [tuple(x) for x in self.df_data.to_records(index=False)]
         # adding a list of edges:
-        self.G.add_edges_from(self.list_of_edges)
+        self.G.add_edges_from(graph_edges)
+
+        # self.list_of_edges = graph_edges
         print(f"Added edges to graph")
 
     def _init_graph(self):
