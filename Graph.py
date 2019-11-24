@@ -35,6 +35,9 @@ class Graph:
         self._read_file()
         self._init_graph()
 
+    def get_networkx_graph(self):
+        return self.G
+
     def _add_nodes(self):
         """
 
