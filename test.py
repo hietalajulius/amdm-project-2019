@@ -2,22 +2,24 @@
 from random import sample
 from graph import Graph
 
-# files with memory error
-fnames = ['soc-Epinions1',
-          'roadNet-CA',
-          'web-NotreDame']
+# files for competition
+fnames_competition = ['ca-GrQc',
+                      'soc-Epinions1',
+                      'roadNet-CA',
+                      'web-NotreDame',
+                      'Oregon-1']
 
 # files ok for memory
-fnames = ['ca-AstroPh',
-          'ca-CondMat',
-          'ca-GrQc',
-          'ca-HepPh',
-          'ca-HepTh',
-          'Oregon-1']
+fnames_small = ['ca-AstroPh',
+                  'ca-CondMat',
+                  'ca-GrQc',
+                  'ca-HepPh',
+                  'ca-HepTh',
+                  'Oregon-1']
 
-# fname = ['ca-GrQc']  # tet with smallest graph
+fnames_test = ['soc-Epinions1']  # test with smallest graph
 
-for fname in fnames:
+for fname in fnames_competition:
     print(f"Creating graph from {fname}")
     graph = Graph(fname=fname,
                   fpath="")

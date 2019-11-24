@@ -1,8 +1,13 @@
 from scipy.linalg import eigh
 import numpy as np
-from sklearn.metrics import pairwise_distances
+from scipy.sparse import csc_matrix
+from scipy.sparse import eye
+from scipy.sparse import identity
+from scipy.sparse import lil_matrix
+from scipy.sparse.linalg import eigsh
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import normalize
 import pandas as pd
 
 def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
@@ -31,42 +36,57 @@ def normalized_spectral_clustering(unique_nodes, list_of_edges, k):
     # print(list_of_edges)
     n = len(unique_nodes)
 
+    print(f"Creating adjacency matrix")
     # input graph adjacency matrix A, number k
     A = adjacency_matrix(list_of_edges, unique_nodes)
     # print("A.shape", A.shape)
 
+    print(f"1. form diagonal matrix D")
     # 1. form diagonal matrix D
-    D = diagonal_degree_matrix(A)
+    n = len(unique_nodes)
+    D = diagonal_degree_matrix(A, n)
     # print(f"D is {D}")
 
+    print(f"2. form normalized Laplacian L0")
     #     2. form normalized Laplacian L0 = I - D^(-1/2)AD^(-1/2)
-    L0 = np.identity(n) - np.dot(D, A).dot(D)
+    # L0 = np.identity(n) - (D.dot(A)).dot(D)
+    L0 = identity(n) - (D.dot(A)).dot(D)
+    # L0 = eye(n).toarray() - (D.dot(A)).dot(D)
     # print(f"L0 is {L0}")
 
-    #     3. compute the first k eigenvectors u1; : : : ; uk of L0
-    e, v = eigh(L0, eigvals=(0, k-1))
+    print(f"3. compute the first k={k} eigenvectors u1,...,uk of L0")
+    #     3. compute the first k eigenvectors u1,...,uk of L0
+    # L0_arr = L0.toarray()
+    # e, v = eigh(L0_arr, eigvals=(0, k-1))
+    e, v = eigsh(L0, k=k)
+
     # eigenvalues
-    # print('eigenvalues:')
-    # print(e)
+    #print('eigenvalues:')
+    #print(e)
     # eigenvectors
-    # print('eigenvectors:')
-    # print(v)
+    #print('eigenvectors:')
+    #print(v)
     plot_eigenvalues(e, v)
 
+    print(f"4-6. k-means clustering")
     #     4. form matrix U that R^(nxk) with columns u1, ... uk of L0
     #     5. normalize U so that rows have norm 1
     #     6. consider the i-th row of U as point yi € R^k,  i = 1, ... n,
     i = np.where(e < 10e-6)[0]
+    #print(i)
     U = np.array(v[:, i[1]])
+    U_norm = normalize(U, axis=1, norm='l1')
     # print(f"U shape is {U.shape}")
 
     #     7. cluster the points {yi}_ i=1,...,n into clusters C1,...,Ck
     km = KMeans(init='k-means++', n_clusters=k)
-    km.fit(U.reshape(-1, 1))
+    km.fit(U_norm.reshape(-1, 1))
     clusters = km.labels_
 
+    print(f"Data to dataframe")
     df = pd.DataFrame({'vertexID':unique_nodes, 'clusterID': clusters})
     # print(df)
+    print(f"Spectral clustering done")
     return df
 
 def adjacency_matrix(list_of_edges, unique_nodes):
@@ -78,7 +98,9 @@ def adjacency_matrix(list_of_edges, unique_nodes):
     """
     n = len(unique_nodes)
     # adj_matrix matrix
-    adj_matrix = np.zeros((n, n), dtype=np.float32)
+    # adj_matrix = np.zeros((n, n), dtype=np.float32)
+    # adj_matrix = csc_matrix((n, n), dtype=np.float32)
+    adj_matrix = lil_matrix((n, n), dtype=np.float32)
     for v1, v2 in list_of_edges:
         # print(f"edge is {v1} - {v2}")
         i1 = np.where(unique_nodes == v1)[0][0]
@@ -88,15 +110,20 @@ def adjacency_matrix(list_of_edges, unique_nodes):
         # print(f"adj matrix found value in index1 {i1} index2 {i2}")
 
     # print(f"sim_matrix.shape {adj_matrix.shape}, sum is {np.sum(adj_matrix)}")
-    return adj_matrix
+    # adj_mat_sparse = csc_matrix(adj_matrix)
 
-def diagonal_degree_matrix(adj):
+    return adj_matrix.tocsc()
+
+def diagonal_degree_matrix(adj, n):
     """
 
     :param adj:
     :return:
     """
-    diag = np.zeros([adj.shape[0], adj.shape[0]], dtype=np.float32) # basically dimensions of your graph
+    # diag = np.zeros([adj.shape[0], adj.shape[0]], dtype=np.float32) # basically dimensions of your graph
+    # diag = csc_matrix((adj.shape[0], adj.shape[0]), dtype=np.float32).toarray()
+    diag = lil_matrix((n, n), dtype=np.float32)
+
     rows, cols = adj.nonzero()
     for row, col in zip(rows, cols):
         diag[row, row] += 1
@@ -106,7 +133,9 @@ def diagonal_degree_matrix(adj):
     for row, col in zip(rows, cols):
         diag[row, row] = 1 / diag[row, row]**0.5
 
-    return diag
+    # diag_sparse = csc_matrix(diag)
+
+    return diag.tocsc()
 
 def plot_eigenvalues(e, v):
     fig = plt.figure()
