@@ -239,6 +239,8 @@ class Graph:
                     theta_list.append(theta)
 
             plt.plot(k_list, theta_list)
+            plt.xlabel = f"Graph conductance"
+            plt.ylabel = f"Number of eigenvector components"
             plt.show()
 
             k0 = k_list[np.argmin(np.array(k_list))]
