@@ -3,14 +3,13 @@ from random import sample
 from graph import Graph
 
 # files for competition
-fnames_competition_small = ['ca-GrQc',
-                            'soc-Epinions1',
-                            'Oregon-1',
-                            ]
-
-fnames_competition_large = [
+fnames_competition_small = [
                             'web-NotreDame',
-                            'roadNet-CA']
+                            'Oregon-1',
+                            'ca-GrQc',
+                            'roadNet-CA',
+                            'soc-Epinions1'
+                            ]
 
 # files ok for memory
 fnames_small = ['ca-AstroPh',
@@ -30,6 +29,7 @@ for fname in fnames_competition_small:
     graph.partition_graph(algorithm="sparse_k_test")
     graph.write_output()
 
+"""
 for fname in fnames_competition_large:
     print(f"Creating graph from {fname}")
     graph = Graph(fname=fname,
@@ -39,6 +39,6 @@ for fname in fnames_competition_large:
     # theta = graph.calculate_objective()
     # graph.draw_partitioned_map()
     graph.write_output()
-
+"""
 
 

@@ -231,32 +231,34 @@ class Graph:
         elif algorithm == 'sparse_k_test':
             theta_list = []
             k_list = []
-            k0_list = np.arange(5, 100, 5)
+            k0_list = np.arange(self.k, 100, 1)
             for k0 in k0_list:
                 print(f"Testing graph partitioning with {k0} n_components eigenvector decomposition")
+                spectral_mode = 'laplacian'
                 df, theta = sparse_partitioning(G=self.G,
                                                 k=self.k,
                                                 unique_nodes=self.list_of_nodes,
                                                 eigen_k=k0,
-                                                load_vectors=False,
+                                                load_vectors=True,
                                                 graph_name=self.fname,
-                                                mode='laplacian')
+                                                mode=spectral_mode)
                 k_list.append(k0)
                 theta_list.append(theta)
 
             plt.plot(k_list, theta_list)
-            plt.xlabel(f"Graph conductance")
-            plt.ylabel(f"Number of eigenvector components")
+            plt.xlabel(f"Number of eigenvector components")
+            plt.ylabel(f"Graph conductance")
             plt.show()
-            plt.savefig(f"eigen_components_{self.fname}_{self.algorithm}")
+            plt.savefig(f"eigen_components_{self.fname}_{spectral_mode}")
 
-            k0 = k_list[np.argmin(np.array(k_list))]
+            # print(f"argmin is {np.argmin(np.array(theta_list))}")
+            # print(f"smallest k value is {k_list[np.argmin(np.array(theta_list))]}")
+            k0 = k_list[np.argmin(np.array(theta_list))]
             print(f"Choosing best k value which is {k0}")
             df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
 
         else:
             print(f"Check algorithm spelling, not found.")
-
 
         self.df_output = df
 

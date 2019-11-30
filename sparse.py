@@ -19,7 +19,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
         # plot_eigenvalues(vals, vecs)
     else:
         if mode == 'laplacian':
-            vecs = np.load('./eigenvectors/laplacian/' + graph_name + '_laplacian.npy')
+            vecs = np.load('./eigenvectors/laplacian/k_100_' + graph_name + '_laplacian.npy')
         elif mode == 'generalized':
             vecs = np.load('./eigenvectors/generalized_eigenproblem/' + graph_name + '_generalized_eigenproblem.npy')
         elif mode == 'normalized':
@@ -28,8 +28,10 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
         else:
             print(f"Partitioning mode not found {mode}")
             return
-
+        # print(f"eigenvec shape is {vecs.shape}")
+        vecs = np.real(vecs)
         vecs = vecs[:, :eigen_k]
+    print(f"eigenvec shape is {vecs.shape}")
 
     labels = KMeans(init='k-means++', n_clusters=k).fit_predict(vecs)
 
@@ -40,7 +42,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
         conductance = nx.algorithms.cuts.cut_size(G, idx) / len(idx)
         total_conductance += conductance
         print(f"Conductance of cluster {i}: {round(conductance, 6)}")
-    print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 3)}")
+    print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 4)}")
 
     #print(f"Writing values to df")
     df = pd.DataFrame({'vertexID': unique_nodes, 'clusterID': labels})
