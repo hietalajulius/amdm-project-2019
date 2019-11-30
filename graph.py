@@ -226,7 +226,20 @@ class Graph:
                                                 self.k)
 
         elif algorithm == 'sparse':
-            df = sparse_partitioning(self.G, self.k, self.list_of_nodes)
+            df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes)
+
+        elif algorithm == 'sparse_k_test':
+            theta_list = []
+            k_list = []
+            for k0 in range(self.k):
+                if k0 > 1:
+                    df, theta = sparse_partitioning(self.G, k0, self.list_of_nodes)
+                    k_list.append(k0)
+                    theta_list.append(theta)
+
+            plt.plot(k_list, theta_list)
+            plt.show()
+
         else:
             print(f"Check algorithm spelling, not found.")
 
