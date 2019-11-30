@@ -28,6 +28,7 @@ for fname in fnames_competition_small:
                   fpath="")
     # graph.draw_map()
     graph.partition_graph(algorithm="sparse_k_test")
+    graph.write_output()
 
 for fname in fnames_competition_large:
     print(f"Creating graph from {fname}")

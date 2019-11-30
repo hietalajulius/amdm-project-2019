@@ -9,27 +9,28 @@ import numpy as np
 import pandas as pd
 
 
-def sparse_partitioning(G, k, unique_nodes, eigen_k):
+def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_name=None, mode=None):
 
     #print(f"Creating laplacian")
-    laplacian = nx.laplacian_matrix(G)
+    if not load_vectors:
+        laplacian = nx.laplacian_matrix(G)
+        #print(f"Calculating eigenvalues and vectors")
+        vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
+        # plot_eigenvalues(vals, vecs)
+    else:
+        if mode == 'laplacian':
+            vecs = np.load('./eigenvectors/laplacian/' + graph_name + '_laplacian.npy')
+        elif mode == 'generalized':
+            vecs = np.load('./eigenvectors/generalized_eigenproblem/' + graph_name + '_generalized_eigenproblem.npy')
+        elif mode == 'normalized':
+            eigs = np.load('./eigenvectors/normalized_laplacian/' + graph_name + '_normalized_laplacian.npy')
+            vecs = eigs / np.linalg.norm(eigs, ord=2, axis=1, keepdims=True)
+        else:
+            print(f"Partitioning mode not found {mode}")
+            return
 
-    #print(f"Calculating eigenvalues and vectors")
-    vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
-    # plot_eigenvalues(vals, vecs)
+        vecs = vecs[:, :eigen_k]
 
-    """
-    print(f"normalise eigenvectors")
-    #     4. form matrix U that R^(nxk) with columns u1, ... uk of L0
-    #     5. normalize U so that rows have norm 1
-    #     6. consider the i-th row of U as point yi € R^k,  i = 1, ... n,
-    i = np.where(vals < 10e-6)[0]
-    U = np.array(vecs[:, i[1]])
-    U_norm = normalize(U, axis=1, norm='l1').reshape(-1, 1)
-
-    print(f"K-means clustering")
-    labels = KMeans(init='k-means++', n_clusters=k).fit_predict(U_norm)
-    """
     labels = KMeans(init='k-means++', n_clusters=k).fit_predict(vecs)
 
     #print(f"Testing conductance")
@@ -38,7 +39,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k):
         idx = np.where(labels == i)[0]
         conductance = nx.algorithms.cuts.cut_size(G, idx) / len(idx)
         total_conductance += conductance
-        print("Conductance of cluster", i, ":", conductance)
+        print(f"Conductance of cluster {i}: {round(conductance, 6)}")
     print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 3)}")
 
     #print(f"Writing values to df")

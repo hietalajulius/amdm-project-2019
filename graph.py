@@ -231,17 +231,24 @@ class Graph:
         elif algorithm == 'sparse_k_test':
             theta_list = []
             k_list = []
-            for k0 in range(60):
-                if k0 > 2:
-                    print(f"Testing graph partitioning with {k0} clusters")
-                    df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
-                    k_list.append(k0)
-                    theta_list.append(theta)
+            k0_list = np.arange(5, 100, 5)
+            for k0 in k0_list:
+                print(f"Testing graph partitioning with {k0} n_components eigenvector decomposition")
+                df, theta = sparse_partitioning(G=self.G,
+                                                k=self.k,
+                                                unique_nodes=self.list_of_nodes,
+                                                eigen_k=k0,
+                                                load_vectors=False,
+                                                graph_name=self.fname,
+                                                mode='laplacian')
+                k_list.append(k0)
+                theta_list.append(theta)
 
             plt.plot(k_list, theta_list)
-            plt.xlabel = f"Graph conductance"
-            plt.ylabel = f"Number of eigenvector components"
+            plt.xlabel(f"Graph conductance")
+            plt.ylabel(f"Number of eigenvector components")
             plt.show()
+            plt.savefig(f"eigen_components_{self.fname}_{self.algorithm}")
 
             k0 = k_list[np.argmin(np.array(k_list))]
             print(f"Choosing best k value which is {k0}")
