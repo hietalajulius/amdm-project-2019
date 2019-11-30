@@ -9,15 +9,16 @@ import numpy as np
 import pandas as pd
 
 
-def sparse_partitioning(G, k, unique_nodes):
+def sparse_partitioning(G, k, unique_nodes, eigen_k):
 
-    print(f"Creating laplacian")
+    #print(f"Creating laplacian")
     laplacian = nx.laplacian_matrix(G)
 
-    print(f"Calculating eigenvalues and vectors")
-    vals, vecs = eigsh(laplacian.asfptype(), k=k, sigma=0)
-    plot_eigenvalues(vals, vecs)
+    #print(f"Calculating eigenvalues and vectors")
+    vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
+    # plot_eigenvalues(vals, vecs)
 
+    """
     print(f"normalise eigenvectors")
     #     4. form matrix U that R^(nxk) with columns u1, ... uk of L0
     #     5. normalize U so that rows have norm 1
@@ -28,17 +29,19 @@ def sparse_partitioning(G, k, unique_nodes):
 
     print(f"K-means clustering")
     labels = KMeans(init='k-means++', n_clusters=k).fit_predict(U_norm)
+    """
+    labels = KMeans(init='k-means++', n_clusters=k).fit_predict(vecs)
 
-    print(f"Testing conductance")
+    #print(f"Testing conductance")
     total_conductance = 0
     for i in range(k):
         idx = np.where(labels == i)[0]
-        conductance = nx.algorithms.cuts.conductance(G, idx)
+        conductance = nx.algorithms.cuts.cut_size(G, idx) / len(idx)
         total_conductance += conductance
-        # print("Conductance of cluster", i, ":", conductance)
-    print(f"total_conductance with k {k} is {total_conductance}")
+        print("Conductance of cluster", i, ":", conductance)
+    print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 3)}")
 
-    print(f"Writing values to df")
+    #print(f"Writing values to df")
     df = pd.DataFrame({'vertexID': unique_nodes, 'clusterID': labels})
 
     return df, total_conductance

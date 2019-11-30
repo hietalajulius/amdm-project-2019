@@ -231,14 +231,19 @@ class Graph:
         elif algorithm == 'sparse_k_test':
             theta_list = []
             k_list = []
-            for k0 in range(self.k):
-                if k0 > 1:
-                    df, theta = sparse_partitioning(self.G, k0, self.list_of_nodes)
+            for k0 in range(60):
+                if k0 > 2:
+                    print(f"Testing graph partitioning with {k0} clusters")
+                    df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
                     k_list.append(k0)
                     theta_list.append(theta)
 
             plt.plot(k_list, theta_list)
             plt.show()
+
+            k0 = k_list[np.argmin(np.array(k_list))]
+            print(f"Choosing best k value which is {k0}")
+            df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
 
         else:
             print(f"Check algorithm spelling, not found.")

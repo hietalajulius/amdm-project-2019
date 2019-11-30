@@ -4,11 +4,13 @@ from graph import Graph
 
 # files for competition
 fnames_competition_small = ['ca-GrQc',
-                            'soc-Epinions1']
+                            'soc-Epinions1',
+                            'Oregon-1',
+                            ]
 
-fnames_competition_large = ['roadNet-CA',
+fnames_competition_large = [
                             'web-NotreDame',
-                            'Oregon-1']
+                            'roadNet-CA']
 
 # files ok for memory
 fnames_small = ['ca-AstroPh',
@@ -25,7 +27,6 @@ for fname in fnames_competition_small:
     graph = Graph(fname=fname,
                   fpath="")
     # graph.draw_map()
-
     graph.partition_graph(algorithm="sparse_k_test")
 
 for fname in fnames_competition_large:
@@ -33,13 +34,9 @@ for fname in fnames_competition_large:
     graph = Graph(fname=fname,
                   fpath="")
     # graph.draw_map()
-
     graph.partition_graph(algorithm="sparse")
-
     # theta = graph.calculate_objective()
-
     # graph.draw_partitioned_map()
-
     graph.write_output()
 
 
