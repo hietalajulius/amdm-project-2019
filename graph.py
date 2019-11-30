@@ -5,6 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 
+from sparse import sparse_partitioning
 from spectral import normalized_spectral_clustering
 
 class Graph:
@@ -118,12 +119,12 @@ class Graph:
         file_dir = os.path.join(os.path.join(self.fpath, 'graphs_processed'), f"{self.fname}.txt")
         print(f"Reading edge data from {file_dir}")
 
-        # TODO
-        #  Get [graphID numOfVertices numOfEdges k] from first comment line
+
         with open(file_dir, "r", newline='') as f:
             reader = csv.reader(f)
             row1 = next(reader)
 
+        #  Get [graphID numOfVertices numOfEdges k] from first comment line
         _, self.graphID, self.numOfVertices, self.numOfEdges, self.k = row1[0].split(" ")
         self.graphID, self.numOfVertices, self.numOfEdges, self.k = self.graphID, \
                                                                     int(self.numOfVertices), \
@@ -223,18 +224,12 @@ class Graph:
             df = normalized_spectral_clustering(self.list_of_nodes,
                                                 self.list_of_edges,
                                                 self.k)
-        elif algorithm == 'test':
-            self.df_output['clusterID'] = 0
-            self.df_output.loc[2000:, 'clusterID'] = 1
-        elif algorithm == 'juliuksen_pytorch':
-            NotImplementedError
-            # df  = moduulin_nimi.funkkari(self.list_of_edges, self.k)
+
+        elif algorithm == 'sparse':
+            df = sparse_partitioning(self.G, self.k, self.list_of_nodes)
         else:
             print(f"Check algorithm spelling, not found.")
 
-        # esim.
-        # self.df_output['vertexID'] = partition[:, 0]
-        # self.df_output['clusterID'] = partition[:, 1]
 
         self.df_output = df
 

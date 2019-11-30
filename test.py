@@ -17,17 +17,17 @@ fnames_small = ['ca-AstroPh',
                   'ca-HepTh',
                   'Oregon-1']
 
-fnames_test = ['soc-Epinions1']  # test with smallest graph
+fnames_test = ['roadNet-CA']  # test with smallest graph
 
-for fname in fnames_competition:
+for fname in fnames_test:
     print(f"Creating graph from {fname}")
     graph = Graph(fname=fname,
                   fpath="")
     # graph.draw_map()
 
-    graph.partition_graph(algorithm="spectral")
+    graph.partition_graph(algorithm="sparse")
 
-    theta = graph.calculate_objective()
+    # theta = graph.calculate_objective()
 
     # graph.draw_partitioned_map()
 
