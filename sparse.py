@@ -9,29 +9,32 @@ import numpy as np
 import pandas as pd
 
 
-def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_name=None, mode=None):
+def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_name=None, mode=None, vecs_full=None):
 
-    #print(f"Creating laplacian")
-    if not load_vectors:
-        laplacian = nx.laplacian_matrix(G)
-        #print(f"Calculating eigenvalues and vectors")
-        vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
-        # plot_eigenvalues(vals, vecs)
-    else:
-        if mode == 'laplacian':
-            vecs = np.load('./eigenvectors/laplacian/k_100_' + graph_name + '_laplacian.npy')
-        elif mode == 'generalized':
-            vecs = np.load('./eigenvectors/generalized_eigenproblem/' + graph_name + '_generalized_eigenproblem.npy')
-        elif mode == 'normalized':
-            eigs = np.load('./eigenvectors/normalized_laplacian/' + graph_name + '_normalized_laplacian.npy')
-            vecs = eigs / np.linalg.norm(eigs, ord=2, axis=1, keepdims=True)
+    if vecs_full is None:
+        #print(f"Creating laplacian")
+        if not load_vectors:
+            laplacian = nx.laplacian_matrix(G)
+            #print(f"Calculating eigenvalues and vectors")
+            vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
+            # plot_eigenvalues(vals, vecs)
         else:
-            print(f"Partitioning mode not found {mode}")
-            return
-        # print(f"eigenvec shape is {vecs.shape}")
-        vecs = np.real(vecs)
-        vecs = vecs[:, :eigen_k]
-    print(f"eigenvec shape is {vecs.shape}")
+            if mode == 'laplacian':
+                vecs = np.load('./eigenvectors/laplacian/k_100_' + graph_name + '_laplacian.npy')
+            elif mode == 'generalized':
+                vecs = np.load('./eigenvectors/generalized_eigenproblem/k_100_' + graph_name + '_generalized_eigenproblem.npy')
+            elif mode == 'normalized':
+                eigs = np.load('./eigenvectors/normalized_laplacian/k_100_' + graph_name + '_normalized_laplacian.npy')
+                vecs = eigs / np.linalg.norm(eigs, ord=2, axis=1, keepdims=True)
+            else:
+                print(f"Partitioning mode not found {mode}")
+                return
+            # print(f"eigenvec shape is {vecs.shape}")
+            vecs_full = np.real(vecs)
+            vecs = vecs_full[:, :eigen_k]
+    else:
+        vecs = vecs_full[:, :eigen_k]
+    # print(f"eigenvec shape is {vecs.shape}")
 
     labels = KMeans(init='k-means++', n_clusters=k).fit_predict(vecs)
 
@@ -45,9 +48,10 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
     print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 4)}")
 
     #print(f"Writing values to df")
+    print(f"Size of unique_nodes is {len(np.unique(unique_nodes))} vs clusterID {len(labels)}")
     df = pd.DataFrame({'vertexID': unique_nodes, 'clusterID': labels})
 
-    return df, total_conductance
+    return df, total_conductance, vecs_full
 
 def plot_eigenvalues(e, v):
     fig = plt.figure()

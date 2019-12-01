@@ -219,7 +219,6 @@ class Graph:
         """
 
         print(f"Partitioning graph to {self.k} clusters with {algorithm}")
-        # TODO
         if algorithm == 'spectral':
             df = normalized_spectral_clustering(self.list_of_nodes,
                                                 self.list_of_edges,
@@ -232,18 +231,28 @@ class Graph:
             theta_list = []
             k_list = []
             k0_list = np.arange(self.k, 100, 1)
+            theta_min = 1000000
+            vecs_full = None
             for k0 in k0_list:
-                print(f"Testing graph partitioning with {k0} n_components eigenvector decomposition")
+
                 spectral_mode = 'laplacian'
-                df, theta = sparse_partitioning(G=self.G,
-                                                k=self.k,
-                                                unique_nodes=self.list_of_nodes,
-                                                eigen_k=k0,
-                                                load_vectors=True,
-                                                graph_name=self.fname,
-                                                mode=spectral_mode)
+                print(f"Testing graph partitioning with {k0} n_components and {spectral_mode}")
+                df, theta, vecs_full = sparse_partitioning(G=self.G,
+                                                           k=self.k,
+                                                           unique_nodes=self.list_of_nodes,
+                                                           eigen_k=k0,
+                                                           load_vectors=True,
+                                                           graph_name=self.fname,
+                                                           mode=spectral_mode,
+                                                           vecs_full=vecs_full)
                 k_list.append(k0)
                 theta_list.append(theta)
+                # Saving values if new record
+                if theta < theta_min:
+                    print(f"New record {round(theta, 4)}. Saving values")
+                    theta_min = theta
+                    self.df_output = df
+                    self.write_output()
 
             plt.plot(k_list, theta_list)
             plt.xlabel(f"Number of eigenvector components")
@@ -254,8 +263,8 @@ class Graph:
             # print(f"argmin is {np.argmin(np.array(theta_list))}")
             # print(f"smallest k value is {k_list[np.argmin(np.array(theta_list))]}")
             k0 = k_list[np.argmin(np.array(theta_list))]
-            print(f"Choosing best k value which is {k0}")
-            df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
+            print(f"best n_components value was {k0}")
+            # df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
 
         else:
             print(f"Check algorithm spelling, not found.")
