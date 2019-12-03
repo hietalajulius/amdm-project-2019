@@ -1,7 +1,7 @@
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from scipy.sparse.linalg import eigs
+
 from scipy.sparse.linalg import eigsh
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import normalize
@@ -9,14 +9,23 @@ import numpy as np
 import pandas as pd
 
 
-def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_name=None, mode=None, vecs_full=None):
-
+def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_name=None, mode=None, vecs_full=None):
+    from scipy.sparse.linalg import eigs
     if vecs_full is None:
-        #print(f"Creating laplacian")
+        print(f"Creating laplacian")
         if not load_vectors:
-            laplacian = nx.laplacian_matrix(G)
-            #print(f"Calculating eigenvalues and vectors")
-            vals, vecs = eigsh(laplacian.asfptype(), k=eigen_k, sigma=0)
+            if mode == 'normalized':
+                laplacian = nx.normalized_laplacian_matrix(G)
+            else:
+                laplacian = nx.laplacian_matrix(G)
+            print(f"Calculating eigenvalues and vectors")
+            vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+            filename = "k_" + str(k) + "_" + graph_name + "_" + mode + ".npy"
+            np.save(filename, vecs)
+            # vals, vecs = eigsh(laplacian.asfptype(), k=100, sigma=0, which='LM')
+
+            vecs_full = vecs
+            vecs = vecs_full[:, :eigen_k]
             # plot_eigenvalues(vals, vecs)
         else:
             if mode == 'laplacian':
@@ -36,7 +45,8 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
         vecs = vecs_full[:, :eigen_k]
     # print(f"eigenvec shape is {vecs.shape}")
 
-    labels = KMeans(init='k-means++', n_clusters=k).fit_predict(vecs)
+    # print(f"Partitioning with kmeans")
+    labels = KMeans(init='k-means++', n_clusters=k, n_init=20, n_jobs=4).fit_predict(vecs)
 
     #print(f"Testing conductance")
     total_conductance = 0
@@ -44,11 +54,11 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=False, graph_n
         idx = np.where(labels == i)[0]
         conductance = nx.algorithms.cuts.cut_size(G, idx) / len(idx)
         total_conductance += conductance
-        print(f"Conductance of cluster {i}: {round(conductance, 6)}")
+        # print(f"Conductance of cluster {i}: {round(conductance, 6)}")
     print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 4)}")
 
     #print(f"Writing values to df")
-    print(f"Size of unique_nodes is {len(np.unique(unique_nodes))} vs clusterID {len(labels)}")
+    # print(f"Size of unique_nodes is {len(np.unique(unique_nodes))} vs clusterID {len(labels)}")
     df = pd.DataFrame({'vertexID': unique_nodes, 'clusterID': labels})
 
     return df, total_conductance, vecs_full

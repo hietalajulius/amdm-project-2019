@@ -218,58 +218,60 @@ class Graph:
         :return:
         """
 
-        print(f"Partitioning graph to {self.k} clusters with {algorithm}")
+        print(f"Partitioning graph to {self.k} clusters for {self.fname}")
         if algorithm == 'spectral':
             df = normalized_spectral_clustering(self.list_of_nodes,
                                                 self.list_of_edges,
                                                 self.k)
-
+            self.df_output = df
         elif algorithm == 'sparse':
             df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes)
+            self.df_output = df
 
         elif algorithm == 'sparse_k_test':
-            theta_list = []
-            k_list = []
-            k0_list = np.arange(self.k, 100, 1)
+
+            k0_list = np.arange(self.k, 80, 1)
             theta_min = 1000000
-            vecs_full = None
-            for k0 in k0_list:
 
-                spectral_mode = 'laplacian'
-                print(f"Testing graph partitioning with {k0} n_components and {spectral_mode}")
-                df, theta, vecs_full = sparse_partitioning(G=self.G,
-                                                           k=self.k,
-                                                           unique_nodes=self.list_of_nodes,
-                                                           eigen_k=k0,
-                                                           load_vectors=True,
-                                                           graph_name=self.fname,
-                                                           mode=spectral_mode,
-                                                           vecs_full=vecs_full)
-                k_list.append(k0)
-                theta_list.append(theta)
-                # Saving values if new record
-                if theta < theta_min:
-                    print(f"New record {round(theta, 4)}. Saving values")
-                    theta_min = theta
-                    self.df_output = df
-                    self.write_output()
+            modes = ['generalized', 'laplacian', 'normalized']
+            colors = ['r', 'b', 'g']
+            for i, spectral_mode in enumerate(modes):
+                print(f"Testing graph partitioning with {spectral_mode}")
+                theta_list = []
+                k_list = []
+                vecs_full = None
+                for k0 in k0_list:
 
-            plt.plot(k_list, theta_list)
-            plt.xlabel(f"Number of eigenvector components")
-            plt.ylabel(f"Graph conductance")
-            plt.show()
-            plt.savefig(f"eigen_components_{self.fname}_{spectral_mode}")
+                    df, theta, vecs_full = sparse_partitioning(G=self.G,
+                                                               k=self.k,
+                                                               unique_nodes=self.list_of_nodes,
+                                                               eigen_k=k0,
+                                                               load_vectors=True,
+                                                               graph_name=self.fname,
+                                                               mode=spectral_mode,
+                                                               vecs_full=vecs_full)
+                    k_list.append(k0)
+                    theta_list.append(theta)
+                    # Saving values if new record
+                    if theta < theta_min:
+                        print(f"New record {round(theta, 4)}. Saving values")
+                        theta_min = theta
+                        self.df_output = df
+                        self.write_output()
 
-            # print(f"argmin is {np.argmin(np.array(theta_list))}")
-            # print(f"smallest k value is {k_list[np.argmin(np.array(theta_list))]}")
-            k0 = k_list[np.argmin(np.array(theta_list))]
-            print(f"best n_components value was {k0}")
-            # df, theta = sparse_partitioning(self.G, self.k, self.list_of_nodes, k0)
+                k0 = k_list[np.argmin(np.array(theta_list))]
+                print(f"best n_components value for {spectral_mode} was {k0} with "
+                      f"value {np.argmin(np.array(theta_list))}")
+                plt.plot(k_list, theta_list, label=spectral_mode, color=colors[i])
+                plt.xlabel(f"Number of eigenvector components")
+                plt.ylabel(f"Graph conductance")
+                plt.legend()
+                plt.gcf()
+                plt.savefig(f"eigen_components_{self.fname}_{spectral_mode}")
+                plt.show()
 
         else:
             print(f"Check algorithm spelling, not found.")
-
-        self.df_output = df
 
     def write_output(self):
 

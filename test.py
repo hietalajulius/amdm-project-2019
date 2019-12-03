@@ -3,8 +3,11 @@ from random import sample
 from graph import Graph
 
 # files for competition
-fnames_competition_test = ['roadNet-CA',
-                           'soc-Epinions1'
+fnames_competition_test = ['ca-GrQc',
+                           'Oregon-1',
+                           'soc-Epinions1',
+                           'web-NotreDame',
+                           'roadNet-CA'
                            ]
 
 # files ok for memory
@@ -23,18 +26,4 @@ for fname in fnames_competition_test:
                   fpath="")
     # graph.draw_map()
     graph.partition_graph(algorithm="sparse_k_test")
-
-
-"""
-for fname in fnames_competition_large:
-    print(f"Creating graph from {fname}")
-    graph = Graph(fname=fname,
-                  fpath="")
-    # graph.draw_map()
-    graph.partition_graph(algorithm="sparse")
-    # theta = graph.calculate_objective()
-    # graph.draw_partitioned_map()
-    graph.write_output()
-"""
-
 
