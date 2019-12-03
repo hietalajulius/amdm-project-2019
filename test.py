@@ -7,15 +7,14 @@ fnames_competition_test = ['ca-GrQc',
                            'Oregon-1',
                            'soc-Epinions1',
                            'web-NotreDame',
-                           'roadNet-CA'
                            ]
 
 # files ok for memory
 fnames_small = ['web-NotreDame',
                 'Oregon-1',
                 'ca-GrQc',
-                'roadNet-CA',
-                'soc-Epinions1'
+                'soc-Epinions1',
+                'roadNet-CA'
                 ]
 
 fnames_test = ['ca-GrQc']  # test with smallest graph

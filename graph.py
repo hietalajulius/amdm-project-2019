@@ -230,7 +230,7 @@ class Graph:
 
         elif algorithm == 'sparse_k_test':
 
-            k0_list = np.arange(self.k, 80, 1)
+            k0_list = np.arange(self.k, self.k + 40, 1)
             theta_min = 1000000
 
             modes = ['generalized', 'laplacian', 'normalized']
@@ -262,13 +262,14 @@ class Graph:
                 k0 = k_list[np.argmin(np.array(theta_list))]
                 print(f"best n_components value for {spectral_mode} was {k0} with "
                       f"value {np.argmin(np.array(theta_list))}")
-                plt.plot(k_list, theta_list, label=spectral_mode, color=colors[i])
-                plt.xlabel(f"Number of eigenvector components")
-                plt.ylabel(f"Graph conductance")
-                plt.legend()
-                plt.gcf()
-                plt.savefig(f"eigen_components_{self.fname}_{spectral_mode}")
-                plt.show()
+                theta_log = np.log10(np.array(theta_list))
+                plt.plot(k_list, theta_log, label=spectral_mode, color=colors[i])
+            plt.xlabel(f"Number of eigenvector components")
+            plt.ylabel(f"Graph conductance (log10)")
+            plt.legend()
+            plt.gcf()
+            plt.savefig(f"eigen_components_{self.fname}")
+            plt.show()
 
         else:
             print(f"Check algorithm spelling, not found.")
