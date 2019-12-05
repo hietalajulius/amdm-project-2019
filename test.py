@@ -2,24 +2,17 @@
 from random import sample
 from graph import Graph
 
-# files for competition
-fnames_competition_test = ['ca-GrQc',
+# can run with larger grid
+fnames_competition_small = ['ca-GrQc',
                            'Oregon-1',
                            'soc-Epinions1',
                            'web-NotreDame',
                            ]
 
-# files ok for memory
-fnames_small = ['web-NotreDame',
-                'Oregon-1',
-                'ca-GrQc',
-                'soc-Epinions1',
-                'roadNet-CA'
-                ]
+# run with smaller grid
+fnames_roadnet = ['roadNet-CA']  # test with smallest graph
 
-fnames_test = ['ca-GrQc']  # test with smallest graph
-
-for fname in fnames_competition_test:
+for fname in fnames_competition_small:
     print(f"Creating graph from {fname}")
     graph = Graph(fname=fname,
                   fpath="")

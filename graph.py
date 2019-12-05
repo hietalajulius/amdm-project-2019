@@ -234,6 +234,7 @@ class Graph:
             theta_min = 1000000
 
             modes = ['generalized', 'laplacian', 'normalized']
+            modes = ['laplacian']
             colors = ['r', 'b', 'g']
             for i, spectral_mode in enumerate(modes):
                 print(f"Testing graph partitioning with {spectral_mode}")
@@ -262,10 +263,19 @@ class Graph:
                 k0 = k_list[np.argmin(np.array(theta_list))]
                 print(f"best n_components value for {spectral_mode} was {k0} with "
                       f"value {np.argmin(np.array(theta_list))}")
+
+                if spectral_mode == 'laplacian':
+                    spectral_name = 'unnormalised Laplacian'
+                elif spectral_mode == 'generalized':
+                    spectral_name = 'generalised'
+                elif spectral_mode == 'normalized':
+                    spectral_name = 'normalised Laplacian'
+
                 theta_log = np.log10(np.array(theta_list))
-                plt.plot(k_list, theta_log, label=spectral_mode, color=colors[i])
+                if np.average(theta_list) < 3:
+                    plt.plot(k_list, theta_list, label=spectral_name, color=colors[i])
             plt.xlabel(f"Number of eigenvector components")
-            plt.ylabel(f"Graph conductance (log10)")
+            plt.ylabel(f"Graph ratio cut")
             plt.legend()
             plt.gcf()
             plt.savefig(f"eigen_components_{self.fname}")

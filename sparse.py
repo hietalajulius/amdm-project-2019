@@ -11,15 +11,30 @@ import pandas as pd
 
 def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_name=None, mode=None, vecs_full=None):
     from scipy.sparse.linalg import eigs
+    from scipy.sparse import diags
     if vecs_full is None:
         print(f"Creating laplacian")
+        print(f"Calculating eigenvalues and vectors")
         if not load_vectors:
             if mode == 'normalized':
                 laplacian = nx.normalized_laplacian_matrix(G)
+                vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+                print(vecs.shape)
+                # i = np.where(vals < 10e-6)[0]
+                #print(i.shape)
+                # U = np.array(vecs[:, i[1]])
+                #print(U.shape)
+                vecs = normalize(vecs, axis=1, norm='l1')
+
+            elif mode == 'generalized':
+                laplacian = nx.laplacian_matrix(G)
+                degree = diags(np.array(G.degree())[:, 1]).asfptype()
+                vals, vecs = eigs(laplacian.asfptype(), k=k, M=degree, sigma=0, OPpart='r')
+
             else:
                 laplacian = nx.laplacian_matrix(G)
-            print(f"Calculating eigenvalues and vectors")
-            vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+                vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+
             filename = "k_" + str(k) + "_" + graph_name + "_" + mode + ".npy"
             np.save(filename, vecs)
             # vals, vecs = eigsh(laplacian.asfptype(), k=100, sigma=0, which='LM')
@@ -34,7 +49,10 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
                 vecs = np.load('./eigenvectors/generalized_eigenproblem/k_100_' + graph_name + '_generalized_eigenproblem.npy')
             elif mode == 'normalized':
                 eigs = np.load('./eigenvectors/normalized_laplacian/k_100_' + graph_name + '_normalized_laplacian.npy')
-                vecs = eigs / np.linalg.norm(eigs, ord=2, axis=1, keepdims=True)
+                # print(eigs.shape)
+                eigs = np.real(eigs)
+                vecs = normalize(eigs, axis=1, norm='l1')
+                # vecs = eigs / np.linalg.norm(eigs, ord=2, axis=1, keepdims=True)
             else:
                 print(f"Partitioning mode not found {mode}")
                 return
@@ -46,7 +64,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
     # print(f"eigenvec shape is {vecs.shape}")
 
     # print(f"Partitioning with kmeans")
-    labels = KMeans(init='k-means++', n_clusters=k, n_init=20, n_jobs=4).fit_predict(vecs)
+    labels = KMeans(init='k-means++', n_clusters=k, n_init=20, n_jobs=2).fit_predict(vecs)
 
     #print(f"Testing conductance")
     total_conductance = 0
