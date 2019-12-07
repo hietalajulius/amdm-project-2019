@@ -4,5 +4,6 @@ graphs_processed
 .vscode/
 __pycache__/
 eigenvectors/
+eigenvectors.zip
 misc/
 results/
