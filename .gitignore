@@ -5,4 +5,4 @@ graphs_processed
 __pycache__/
 eigenvectors/
 eigenvectors.zip
-results/
+results
