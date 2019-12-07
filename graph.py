@@ -230,11 +230,10 @@ class Graph:
 
         elif algorithm == 'sparse_k_test':
 
-            k0_list = np.arange(self.k, self.k + 40, 1)
+            k0_list = np.arange(self.k, self.k + 30, 5)
             theta_min = 1000000
 
             modes = ['generalized', 'laplacian', 'normalized']
-            modes = ['laplacian']
             colors = ['r', 'b', 'g']
             for i, spectral_mode in enumerate(modes):
                 print(f"Testing graph partitioning with {spectral_mode}")

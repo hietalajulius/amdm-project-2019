@@ -64,7 +64,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
     # print(f"eigenvec shape is {vecs.shape}")
 
     # print(f"Partitioning with kmeans")
-    labels = KMeans(init='k-means++', n_clusters=k, n_init=20, n_jobs=2).fit_predict(vecs)
+    labels = KMeans(init='k-means++', n_clusters=k, n_init=10, n_jobs=2).fit_predict(vecs)
 
     #print(f"Testing conductance")
     total_conductance = 0
