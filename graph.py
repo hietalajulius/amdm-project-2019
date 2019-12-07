@@ -244,7 +244,7 @@ class Graph:
                                                                k=self.k,
                                                                unique_nodes=self.list_of_nodes,
                                                                eigen_k=k0,
-                                                               load_vectors=True,
+                                                               load_vectors=False,
                                                                graph_name=self.fname,
                                                                mode=spectral_mode,
                                                                vecs_full=vecs_full)
