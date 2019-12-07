@@ -207,7 +207,7 @@ class Graph:
         plt.show()  # display
 
     def partition_graph(self,
-                        algorithm):
+                        algorithm='sparse_k_test'):
         """
         Write partition values to self.df_output
         self.df_output['vertexID'] = list_of_vertices
