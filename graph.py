@@ -231,8 +231,8 @@ class Graph:
             k0_list = np.arange(self.k, self.k + 40, 1)
             theta_min = 1000000
 
-            modes = ['generalized', 'laplacian', 'normalized']
-            colors = ['r', 'b', 'g']
+            modes = ['laplacian', 'generalized', 'normalized']
+            colors = ['b', 'r', 'g']
             for i, spectral_mode in enumerate(modes):
                 print(f"Testing graph partitioning with {spectral_mode}")
                 theta_list = []
