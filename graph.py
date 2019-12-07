@@ -54,7 +54,7 @@ class Graph:
 
         # print(unique_nodes)
         self.df_output = pd.DataFrame(data=unique_nodes, columns=['vertexID'])
-        print(f"Added nodes to graph")
+        # print(f"Added nodes to graph")
 
     def _add_edges(self):
         """
@@ -70,7 +70,7 @@ class Graph:
         self.G.add_edges_from(graph_edges)
 
         # self.list_of_edges = graph_edges
-        print(f"Added edges to graph")
+        # print(f"Added edges to graph")
 
     def _init_graph(self):
         """
@@ -133,7 +133,7 @@ class Graph:
 
         header_names = ['node1', 'node2']
         df = pd.read_csv(file_dir, sep=' ', skiprows=1,  header=None, names=header_names)
-        print(df.head())
+        # print(df.head())
         self.df_data = df
 
     def calculate_objective(self):
@@ -228,23 +228,23 @@ class Graph:
             self.df_output = df
 
         elif algorithm == 'sparse_k_test':
-            k0_list = np.arange(self.k, self.k + 40, 1)
+            k0_list = np.arange(self.k, self.k + 50, 1)
             theta_min = 1000000
 
             modes = ['laplacian', 'generalized', 'normalized']
             colors = ['b', 'r', 'g']
             for i, spectral_mode in enumerate(modes):
-                print(f"Testing graph partitioning with {spectral_mode}")
+                # print(f"Testing graph partitioning with {spectral_mode}")
                 theta_list = []
                 k_list = []
                 vecs_full = None
-                for k0 in k0_list:
 
+                for k0 in k0_list:
                     df, theta, vecs_full = sparse_partitioning(G=self.G,
                                                                k=self.k,
                                                                unique_nodes=self.list_of_nodes,
                                                                eigen_k=k0,
-                                                               load_vectors=False,
+                                                               load_vectors=True,
                                                                graph_name=self.fname,
                                                                mode=spectral_mode,
                                                                vecs_full=vecs_full)
@@ -252,14 +252,10 @@ class Graph:
                     theta_list.append(theta)
                     # Saving values if new record
                     if theta < theta_min:
-                        print(f"New record {round(theta, 4)}. Saving values")
+                        # print(f"New record {round(theta, 4)}. Saving values")
                         theta_min = theta
                         self.df_output = df
-                        self.write_output()
-
-                k0 = k_list[np.argmin(np.array(theta_list))]
-                print(f"best n_components value for {spectral_mode} was {k0} with "
-                      f"value {np.argmin(np.array(theta_list))}")
+                        # self.write_output()
 
                 if spectral_mode == 'laplacian':
                     spectral_name = 'unnormalised Laplacian'
@@ -267,6 +263,11 @@ class Graph:
                     spectral_name = 'generalised'
                 elif spectral_mode == 'normalized':
                     spectral_name = 'normalised Laplacian'
+
+                k0 = k_list[np.argmin(np.array(theta_list))]
+                min_theta = round(theta_list[np.argmin(np.array(theta_list))], 5)
+                print(f"With {spectral_name}, the smallest ratio cut of {min_theta} was found "
+                      f"with {k0} eigenvector components.")
 
                 theta_log = np.log10(np.array(theta_list))
                 if np.average(theta_list) < 3:
@@ -295,7 +296,6 @@ class Graph:
                               header=False,
                               index=False)
 
-        # TODO
         # write: the first line specifies the problem parameters (# graphID numOfVertices numOfEdges k)
         with open(file_dir, 'r') as original: data = original.read()
         with open(file_dir, 'w') as modified: modified.write(f"# {self.graphID} {self.numOfVertices} {self.numOfEdges} {self.k}\n" + data)

@@ -13,31 +13,30 @@ from scipy.sparse import diags
 def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_name=None, mode=None, vecs_full=None):
 
     if vecs_full is None:
-        print(f"Calculating eigenvalues and vectors")
         if not load_vectors:
+            # print(f"Calculating eigenvalues and vectors")
             if mode == 'normalized':
                 laplacian = nx.normalized_laplacian_matrix(G)
                 vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
                 # print(vecs.shape)
+                vecs = np.real(vecs)
                 vecs = normalize(vecs, axis=1, norm='l1')
 
             elif mode == 'generalized':
                 laplacian = nx.laplacian_matrix(G)
                 degree = diags(np.array(G.degree())[:, 1]).asfptype()
-                vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=k, M=degree, sigma=0, OPpart='r')
+                vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=100, M=degree, sigma=0, OPpart='r')
 
             else:
                 laplacian = nx.laplacian_matrix(G)
                 vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
 
-            filename = "k_" + str(k) + "_" + graph_name + "_" + mode + ".npy"
-            np.save(filename, vecs)
+            # filename = "k_" + str(k) + "_" + graph_name + "_" + mode + ".npy"
+            # np.save(filename, vecs)
             # vals, vecs = eigsh(laplacian.asfptype(), k=100, sigma=0, which='LM')
-
-            vecs_full = vecs
-            vecs = vecs_full[:, :eigen_k]
             # plot_eigenvalues(vals, vecs)
         else:
+            # print(f"Loading eigenvectors from file")
             if mode == 'laplacian':
                 vecs = np.load('./eigenvectors/laplacian/k_100_' + graph_name + '_laplacian.npy')
             elif mode == 'generalized':
@@ -52,14 +51,15 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
                 print(f"Partitioning mode not found {mode}")
                 return
             # print(f"eigenvec shape is {vecs.shape}")
-            vecs_full = np.real(vecs)
-            vecs = vecs_full[:, :eigen_k]
+
+        vecs_full = np.real(vecs)
+        vecs = vecs_full[:, :eigen_k]
     else:
         vecs = vecs_full[:, :eigen_k]
     # print(f"eigenvec shape is {vecs.shape}")
 
     # print(f"Partitioning with kmeans")
-    labels = KMeans(init='k-means++', n_clusters=k, n_init=10, n_jobs=2).fit_predict(vecs)
+    labels = KMeans(init='k-means++', n_clusters=k, n_init=20, n_jobs=2).fit_predict(vecs)
 
     #print(f"Testing conductance")
     total_conductance = 0
@@ -68,7 +68,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
         conductance = nx.algorithms.cuts.cut_size(G, idx) / len(idx)
         total_conductance += conductance
         # print(f"Conductance of cluster {i}: {round(conductance, 6)}")
-    print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 4)}")
+    # print(f"total_conductance with k {k} and eigen k {eigen_k} is {round(total_conductance, 4)}")
 
     #print(f"Writing values to df")
     # print(f"Size of unique_nodes is {len(np.unique(unique_nodes))} vs clusterID {len(labels)}")

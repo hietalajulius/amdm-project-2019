@@ -12,7 +12,9 @@ fnames_competition_small = ['ca-GrQc',
 # run with smaller grid
 fnames_roadnet = ['roadNet-CA']  # test with smallest graph
 
-for fname in fnames_roadnet:
+f = ['ca-GrQc']
+
+for fname in f:
     print(f"Creating graph from {fname}")
     graph = Graph(fname=fname,
                   fpath="")
