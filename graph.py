@@ -142,7 +142,6 @@ class Graph:
         Pitäiskö tehä tämä partitionin sisään ei class funktioks?
         :return:
         """
-        # TODO
         print(f"Calculating objective function")
         theta = 0
         for i in range(self.k):
@@ -229,8 +228,7 @@ class Graph:
             self.df_output = df
 
         elif algorithm == 'sparse_k_test':
-
-            k0_list = np.arange(self.k, self.k + 30, 5)
+            k0_list = np.arange(self.k, self.k + 40, 1)
             theta_min = 1000000
 
             modes = ['generalized', 'laplacian', 'normalized']
