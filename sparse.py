@@ -1,7 +1,6 @@
 
 import matplotlib.pyplot as plt
 import networkx as nx
-
 from scipy.sparse.linalg import eigsh
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import normalize
@@ -19,11 +18,7 @@ def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_na
             if mode == 'normalized':
                 laplacian = nx.normalized_laplacian_matrix(G)
                 vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
-                print(vecs.shape)
-                # i = np.where(vals < 10e-6)[0]
-                #print(i.shape)
-                # U = np.array(vecs[:, i[1]])
-                #print(U.shape)
+                # print(vecs.shape)
                 vecs = normalize(vecs, axis=1, norm='l1')
 
             elif mode == 'generalized':
