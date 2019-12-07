@@ -6,29 +6,29 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import normalize
 import numpy as np
 import pandas as pd
+from scipy import sparse
+from scipy.sparse import diags
 
 
 def sparse_partitioning(G, k, unique_nodes, eigen_k, load_vectors=True, graph_name=None, mode=None, vecs_full=None):
-    from scipy.sparse.linalg import eigs
-    from scipy.sparse import diags
+
     if vecs_full is None:
-        print(f"Creating laplacian")
         print(f"Calculating eigenvalues and vectors")
         if not load_vectors:
             if mode == 'normalized':
                 laplacian = nx.normalized_laplacian_matrix(G)
-                vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+                vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
                 # print(vecs.shape)
                 vecs = normalize(vecs, axis=1, norm='l1')
 
             elif mode == 'generalized':
                 laplacian = nx.laplacian_matrix(G)
                 degree = diags(np.array(G.degree())[:, 1]).asfptype()
-                vals, vecs = eigs(laplacian.asfptype(), k=k, M=degree, sigma=0, OPpart='r')
+                vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=k, M=degree, sigma=0, OPpart='r')
 
             else:
                 laplacian = nx.laplacian_matrix(G)
-                vals, vecs = eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
+                vals, vecs = sparse.linalg.eigs(laplacian.asfptype(), k=100, sigma=0, OPpart='r')
 
             filename = "k_" + str(k) + "_" + graph_name + "_" + mode + ".npy"
             np.save(filename, vecs)
